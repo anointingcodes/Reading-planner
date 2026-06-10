@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ReadMap — Your Personal Book Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --beige: #F7F3EE;
+    --beige-mid: #EDE7DC;
+    --beige-dark: #D9CFBF;
+    --ink: #1A1714;
+    --ink-soft: #4A4540;
+    --accent: #8B6F47;
+    --accent-light: #C4A882;
+    --gold: #B8963E;
+    --white: #FDFBF8;
+    --shadow: rgba(26,23,20,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--beige);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--beige-dark);
+    padding: 22px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--ink);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-mark svg { width: 20px; height: 20px; fill: var(--beige); }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+  .logo-sub { font-size: 0.72rem; color: var(--ink-soft); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 64px 24px 48px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.18;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-radius: 16px;
+    max-width: 680px;
+    margin: 0 auto 80px;
+    padding: 44px 48px;
+    box-shadow: 0 2px 24px var(--shadow);
+  }
+
+  .form-section-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--beige-dark);
+  }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .field-row.single { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.82rem; font-weight: 500; color: var(--ink); }
+  .field label .hint { font-weight: 300; color: var(--ink-soft); }
+
+  .field input, .field select, .field textarea {
+    background: var(--beige);
+    border: 1px solid var(--beige-dark);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139,111,71,0.12);
+  }
+  .field textarea { resize: vertical; min-height: 90px; }
+
+  /* interests grid */
+  .interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .interest-chip input { display: none; }
+  .interest-chip label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: var(--beige);
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .interest-chip label:hover { border-color: var(--accent-light); background: var(--beige-mid); }
+  .interest-chip input:checked + label {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--beige);
+  }
+  .interest-chip label .chip-icon { font-size: 1.1rem; }
+
+  .hint-text { font-size: 0.76rem; color: var(--ink-soft); margin-top: -14px; margin-bottom: 20px; }
+
+  /* divider */
+  .section-gap { margin-top: 32px; margin-bottom: 24px; }
+
+  /* submit btn */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--beige);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.18s, transform 0.1s;
+    margin-top: 8px;
+  }
+  .btn-submit:hover { background: var(--accent); }
+  .btn-submit:active { transform: scale(0.99); }
+  .btn-submit:disabled { background: var(--beige-dark); color: var(--ink-soft); cursor: not-allowed; }
+
+  /* ── LOADING ── */
+  #loading-screen {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--beige);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  #loading-screen.active { display: flex; }
+  .loading-book {
+    width: 48px; height: 48px;
+    border: 3px solid var(--beige-dark);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:0.5 } 50% { opacity:1 } }
+
+  /* ── RESULTS ── */
+  #results-page { display: none; }
+  #results-page.active { display: block; }
+
+  .results-hero {
+    text-align: center;
+    padding: 48px 24px 32px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .results-hero .eyebrow { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .results-hero h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; margin-bottom: 10px; }
+  .results-hero p { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; }
+
+  /* WhatsApp CTA banner */
+  .wa-banner {
+    max-width: 780px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+  }
+  .wa-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 18px 24px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.18s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .wa-btn:hover { background: #1ebe5b; }
+  .wa-btn:active { transform: scale(0.99); }
+  .wa-icon { width: 26px; height: 26px; flex-shrink: 0; }
+  .wa-sub { font-weight: 400; font-size: 0.82rem; opacity: 0.9; }
+
+  /* timetable card */
+  .timetable-wrap {
+    max-width: 780px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+  }
+  #timetable-card {
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-radius: 16px;
+    padding: 40px 44px;
+    box-shadow: 0 2px 24px var(--shadow);
+  }
+
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--beige-dark);
+  }
+  .card-header-left {}
+  .card-header-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
+  .card-header-meta { font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px; }
+  .card-header-right { text-align: right; flex-shrink: 0; }
+  .readmap-badge { font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+
+  .motivational-note {
+    background: var(--beige);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .category-block { margin-bottom: 28px; }
+  .category-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--beige-dark);
+  }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  .book-list { display: flex; flex-direction: column; gap: 10px; }
+  .book-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 16px;
+    background: var(--beige);
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .book-item:hover { background: var(--beige-mid); }
+  .book-num {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-radius: 4px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+  .book-info { flex: 1; }
+  .book-title { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .book-author { font-size: 0.78rem; color: var(--ink-soft); }
+  .book-why { font-size: 0.76rem; color: var(--accent); margin-top: 3px; font-style: italic; }
+  .book-timing {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .schedule-summary {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--beige-dark);
+  }
+  .stat-cell {
+    background: var(--beige);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--ink); }
+  .stat-label { font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
+
+  .card-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.72rem;
+    color: var(--beige-dark);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* action buttons */
+  .action-row {
+    max-width: 780px;
+    margin: 0 auto 28px;
+    padding: 0 24px;
+    display: flex; gap: 12px;
+  }
+  .btn-download {
+    flex: 1;
+    padding: 15px;
+    background: var(--ink);
+    color: var(--beige);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.18s;
+  }
+  .btn-download:hover { background: var(--accent); }
+  .btn-restart {
+    padding: 15px 24px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s;
+  }
+  .btn-restart:hover { border-color: var(--ink); background: var(--beige-mid); }
+
+  /* error */
+  .error-box {
+    background: #fff3f3;
+    border: 1px solid #f5c2c2;
+    color: #8b2020;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 0.88rem;
+    margin-top: 12px;
+    display: none;
+  }
+  .error-box.show { display: block; }
+
+  @media (max-width: 600px) {
+    .form-card { padding: 28px 20px; }
+    .field-row { grid-template-columns: 1fr; }
+    #timetable-card { padding: 24px 20px; }
+    .action-row { flex-direction: column; }
+    .schedule-summary { grid-template-columns: 1fr 1fr; }
+    header { padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+  </div>
+  <div>
+    <div class="logo-text">ReadMap</div>
+    <div class="logo-sub">Personalised Book Journeys</div>
+  </div>
+</header>
+
+<!-- FORM PAGE -->
+<div id="form-page">
+  <div class="hero">
+    <div class="hero-eyebrow">Your reading roadmap awaits</div>
+    <h1>Books matched to <em>your</em> goals & life</h1>
+    <p>Tell us about yourself and we'll build a personalised reading timetable with books chosen to take you exactly where you want to go.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-label">About You</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Amaka Obi" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Age</label>
+        <input type="number" id="f-age" placeholder="e.g. 28" min="13" max="100"/>
+      </div>
+    </div>
+
+    <div class="form-section-label section-gap">Your Interests <span style="font-weight:300;text-transform:none;letter-spacing:0;">(choose 1–3)</span></div>
+    <div class="interests-grid" id="interests-grid">
+      <div class="interest-chip"><input type="checkbox" id="int-business" value="Business"/><label for="int-business"><span class="chip-icon">💼</span> Business</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-finance" value="Finance"/><label for="int-finance"><span class="chip-icon">💰</span> Finance</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-marketing" value="Marketing"/><label for="int-marketing"><span class="chip-icon">📣</span> Marketing</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-marriage" value="Marriage &amp; Relationships"/><label for="int-marriage"><span class="chip-icon">💍</span> Marriage</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-leadership" value="Leadership"/><label for="int-leadership"><span class="chip-icon">🌟</span> Leadership</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-personal" value="Personal Development"/><label for="int-personal"><span class="chip-icon">🧠</span> Personal Dev</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-entrepreneurship" value="Entrepreneurship"/><label for="int-entrepreneurship"><span class="chip-icon">🚀</span> Entrepreneurship</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-spirituality" value="Spirituality"/><label for="int-spirituality"><span class="chip-icon">🙏</span> Spirituality</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-health" value="Health &amp; Wellness"/><label for="int-health"><span class="chip-icon">💪</span> Health</label></div>
+      <div class="interest-chip"><input type="checkbox" id="int-productivity" value="Productivity"/><label for="int-productivity"><span class="chip-icon">⚡</span> Productivity</label></div>
+    </div>
+    <div class="hint-text">Select the areas most relevant to your current season of life.</div>
+
+    <div class="form-section-label section-gap">Your Reading Habits</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Books per year <span class="hint">(currently)</span></label>
+        <select id="f-books-year">
+          <option value="">Select…</option>
+          <option value="0–2">0–2 books</option>
+          <option value="3–5">3–5 books</option>
+          <option value="6–10">6–10 books</option>
+          <option value="11–20">11–20 books</option>
+          <option value="20+">20+ books</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Hours per day <span class="hint">(available)</span></label>
+        <select id="f-hours-day">
+          <option value="">Select…</option>
+          <option value="0.5">30 minutes</option>
+          <option value="1">1 hour</option>
+          <option value="1.5">1.5 hours</option>
+          <option value="2">2 hours</option>
+          <option value="3+">3+ hours</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section-label section-gap">Your Goals</div>
+    <div class="field-row single">
+      <div class="field">
+        <label>What do you want to achieve in the next 12 months? <span class="hint">(be specific)</span></label>
+        <textarea id="f-goals" placeholder="e.g. Start a profitable side business, improve my marriage, grow my savings by 40%…"></textarea>
+      </div>
+    </div>
+
+    <div id="form-error" class="error-box"></div>
+    <button class="btn-submit" id="btn-get-result" onclick="handleSubmit()">Get My Reading Plan →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-book"></div>
+  <div class="loading-text">Curating your reading journey…</div>
+</div>
+
+<!-- RESULTS PAGE -->
+<div id="results-page">
+  <div class="results-hero">
+    <div class="eyebrow">Your personalised reading plan is ready</div>
+    <h2 id="results-headline">Your Reading Journey Starts Now</h2>
+    <p id="results-sub">Save it as an image and begin your first chapter today.</p>
+  </div>
+
+  <div class="wa-banner">
+    <a href="https://wa.link/bb78d8" target="_blank" class="wa-btn">
+      <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <div>
+        <div>Chat with me on WhatsApp</div>
+        <div class="wa-sub">Get personal coaching & accountability</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="timetable-wrap">
+    <div id="timetable-card">
+      <!-- dynamically filled -->
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn-download" onclick="downloadImage()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Save as Image
+    </button>
+    <button class="btn-restart" onclick="restart()">Start Over</button>
+  </div>
+</div>
+
+<script>
+// ── BOOK DATABASE (from your ebook list) ──────────────────────────────────────────────
+const BOOKS = {
+  "Business": [
+    { title: "Good to Great", author: "Jim Collins", why: "What truly separates great companies" },
+    { title: "The E-Myth", author: "Michael E. Gerber", why: "Stop working in your business, work on it" },
+    { title: "Shoe Dog", author: "Phil Knight", why: "The raw, real story of building Nike" },
+    { title: "The Hard Thing About Hard Things", author: "Ben Horowitz", why: "Honest lessons from startup trenches" },
+    { title: "The Great CEO Within", author: "Matt Mochary", why: "Operational playbook for scaling a business" },
+    { title: "The Personal MBA", author: "Josh Kaufman", why: "A full MBA education in one book" },
+    { title: "Build Don't Talk", author: "Raj Shamani", why: "Take action, stop overthinking" },
+    { title: "The Diary of a CEO", author: "Steven Bartlett", why: "Hard-won CEO lessons from a young founder" },
+    { title: "Start With Why", author: "Simon Sinek", why: "Inspire action starting from purpose" },
+    { title: "The 1% Rule", author: "Tommy Baker", why: "Outperform 99% with daily 1% improvements" },
+  ],
+  "Finance": [
+    { title: "Think and Grow Rich", author: "Napoleon Hill", why: "The original wealth mindset masterclass" },
+    { title: "The Total Money Makeover", author: "Dave Ramsey", why: "Proven debt-free plan step by step" },
+    { title: "The Psychology of Money", author: "Morgan Housel", why: "Why we behave the way we do with money" },
+    { title: "Financial Intelligence", author: "Karen Berman & Joe Knight", why: "Understand financial numbers that drive business" },
+    { title: "Grow Rich with the Power of Your Subconscious Mind", author: "Dr. Joseph Murphy", why: "Rewire your mind for wealth creation" },
+    { title: "The Millionaire Fastlane", author: "MJ DeMarco", why: "Fast-track your path to financial freedom" },
+    { title: "The Pathway to Wealth", author: "Mark Fisher", why: "Simple, powerful wealth-building philosophy" },
+    { title: "The Simple Path to Wealth", author: "JL Collins", why: "Index fund investing made brilliantly simple" },
+    { title: "Rich Dad's Increase Your Financial IQ", author: "Robert Kiyosaki", why: "Level up your money intelligence" },
+    { title: "How to Raise Your Own Salary", author: "Napoleon Hill", why: "Negotiation & value creation principles" },
+    { title: "Just Keep Buying", author: "Nick Maggiulli", why: "Data-backed guide to saving & investing" },
+    { title: "Smart Women Finish Rich", author: "David Bach", why: "Financial empowerment roadmap for women" },
+    { title: "Learn to Earn", author: "Peter Lynch", why: "How to think about stocks and business" },
+  ],
+  "Marketing": [
+    { title: "This Is Marketing", author: "Seth Godin", why: "Human-centred marketing that actually works" },
+    { title: "Permission Marketing", author: "Seth Godin", why: "Turn strangers into friends into customers" },
+    { title: "Guerrilla Marketing", author: "Jay Conrad Levinson", why: "Low-cost, high-impact marketing tactics" },
+    { title: "Key Person of Influence", author: "Daniel Priestley", why: "Become the go-to person in your niche" },
+    { title: "Louder Than Words", author: "Todd Henry", why: "Build a distinctive voice and brand" },
+    { title: "The Only Sales Guide You'll Ever Need", author: "Anthony Iannarino", why: "Close more sales with these proven habits" },
+    { title: "Smart Calling", author: "Art Sobczak", why: "Eliminate fear and rejection in sales calls" },
+    { title: "Exactly What to Say", author: "Phil M. Jones", why: "The magic words that influence decisions" },
+    { title: "Crush It!", author: "Gary Vaynerchuk", why: "Build your personal brand and cash in on passion" },
+    { title: "Speak to Win", author: "Brian Tracy", why: "Present and persuade in any situation" },
+  ],
+  "Marriage & Relationships": [
+    { title: "A Complete Guide to What Men Want", author: "John Alexander", why: "Understand the male psychology deeply" },
+    { title: "The Four Agreements", author: "Don Miguel Ruiz", why: "A code for life-changing relationships" },
+    { title: "How to Talk So Kids Will Listen & Listen So Kids Will Talk", author: "Adele Faber", why: "Communication that transforms family life" },
+    { title: "Games People Play", author: "Eric Berne", why: "Spot hidden patterns in relationships" },
+    { title: "People Can't Drive You Crazy If You Don't Give Them the Keys", author: "Mike Bechtle", why: "Stop letting others control your emotions" },
+    { title: "Handling Difficult People", author: "John Hoover", why: "Practical tools for tough personalities" },
+    { title: "Why Has Nobody Told Me This Before?", author: "Dr. Julie Smith", why: "Emotional tools everyone should have" },
+    { title: "The Go-Giver", author: "Bob Burg & John David Mann", why: "Give value first — it transforms every relationship" },
+  ],
+  "Leadership": [
+    { title: "The Art of War", author: "Sun Tzu", why: "Ancient strategy that never loses relevance" },
+    { title: "Start With Why", author: "Simon Sinek", why: "Lead by inspiring, not by telling" },
+    { title: "The Leader Who Had No Title", author: "Robin Sharma", why: "Lead powerfully from any position" },
+    { title: "Extreme Ownership", author: "Jocko Willink & Leif Babin", why: "Navy SEAL leadership principles for life" },
+    { title: "Crucial Conversations", author: "Kerry Patterson et al.", why: "Master high-stakes dialogue" },
+    { title: "Influence People Through Public Speaking", author: "Various", why: "Command any room with confidence" },
+    { title: "How Successful People Grow", author: "John C. Maxwell", why: "15 laws of growth from a master leader" },
+    { title: "Dare to Lead", author: "Brené Brown", why: "Vulnerability is the new leadership superpower" },
+    { title: "Motivation Manifesto", author: "Brendon Burchard", why: "Reclaim your freedom and lead yourself first" },
+    { title: "Drive", author: "Daniel H. Pink", why: "What truly motivates people — it's not money" },
+  ],
+  "Personal Development": [
+    { title: "Atomic Habits", author: "James Clear", why: "Tiny changes that compound into remarkable results" },
+    { title: "Mindset", author: "Carol S. Dweck", why: "The growth mindset that unlocks all potential" },
+    { title: "Man's Search for Meaning", author: "Viktor E. Frankl", why: "Find purpose even in the hardest moments" },
+    { title: "How to Win Friends and Influence People", author: "Dale Carnegie", why: "Timeless social skills that open every door" },
+    { title: "Awaken the Giant Within", author: "Tony Robbins", why: "Take immediate control of your life" },
+    { title: "The Compound Effect", author: "Darren Hardy", why: "Small daily actions produce massive results" },
+    { title: "Attitude Is Everything", author: "Jeff Keller", why: "Your attitude determines your altitude" },
+    { title: "The Magic of Thinking Big", author: "David Schwartz", why: "Think bigger to achieve bigger" },
+    { title: "Grit", author: "Angela Duckworth", why: "Why passion and perseverance beat talent" },
+    { title: "The Gifts of Imperfection", author: "Brené Brown", why: "Let go of who you think you should be" },
+    { title: "The Subtle Art of Not Giving a F*ck", author: "Mark Manson", why: "Choose what truly matters and let go of the rest" },
+    { title: "The Mountain Is You", author: "Brianna Wiest", why: "Transform self-sabotage into strength" },
+    { title: "Master Your Mindset", author: "Michael Pilarczyk", why: "Rewire your thinking for success" },
+    { title: "Master Your Emotions", author: "Thibaut Meurisse", why: "Stop being controlled by negative emotions" },
+    { title: "13 Things Mentally Strong People Don't Do", author: "Amy Morin", why: "Build the mental resilience that changes lives" },
+    { title: "Why Motivated People Do More Work", author: "Various", why: "Understand and harness your inner drive" },
+    { title: "Daring Greatly", author: "Brené Brown", why: "The courage to be vulnerable is the key to connection" },
+    { title: "Failing Forward", author: "John C. Maxwell", why: "Turn every setback into a stepping stone" },
+    { title: "Who Moved My Cheese?", author: "Spencer Johnson", why: "Adapt quickly to change and win" },
+    { title: "The Daily Stoic", author: "Ryan Holiday & Stephen Hanselman", why: "Ancient wisdom for daily modern life" },
+    { title: "It Always Seems Impossible Until It's Done", author: "Nelson Mandela", why: "Perseverance through any obstacle" },
+    { title: "What I Know For Sure", author: "Oprah Winfrey", why: "Hard-won wisdom on joy, resilience and purpose" },
+    { title: "The Success Principles", author: "Jack Canfield", why: "64 principles that produce extraordinary results" },
+    { title: "Millionaire Success Habits", author: "Dean Graziosi", why: "Daily habits of the ultra-successful" },
+    { title: "The Alchemist", author: "Paulo Coelho", why: "A story that reminds you to pursue your Personal Legend" },
+    { title: "Dream Big", author: "Bob Goff", why: "Pursue your biggest dreams with everything you have" },
+    { title: "No Excuses!", author: "Brian Tracy", why: "The self-discipline that makes success inevitable" },
+    { title: "Finish What You Start", author: "Peter Hollins", why: "The art of following through" },
+    { title: "Die Empty", author: "Todd Henry", why: "Don't go to the grave with your best work inside" },
+    { title: "Essentialism", author: "Greg McKeown", why: "Do less, but better — the disciplined pursuit of less" },
+    { title: "Robin Sharma's Little Black Book for Stunning Success", author: "Robin Sharma", why: "Short, powerful daily wisdom" },
+  ],
+  "Entrepreneurship": [
+    { title: "The 4-Hour Workweek", author: "Timothy Ferriss", why: "Design a business that gives you your life back" },
+    { title: "Entrepreneur Roller Coaster", author: "Darren Hardy", why: "An honest look at the entrepreneurial journey" },
+    { title: "Millionaire Success Habits", author: "Dean Graziosi", why: "The daily habits behind eight-figure businesses" },
+    { title: "Be Obsessed or Be Average", author: "Grant Cardone", why: "Average kills dreams — obsession builds empires" },
+    { title: "The Millionaire Fastlane", author: "MJ DeMarco", why: "Ditch the slow lane and accelerate wealth" },
+    { title: "Steal Like an Artist", author: "Austin Kleon", why: "Creativity is remixing — embrace your influences" },
+    { title: "How to Build a Multi-Level Money Machine", author: "Randy Gage", why: "Build a sustainable network marketing business" },
+    { title: "The Four Year Career", author: "Richard Bliss Brooke", why: "Network marketing as a vehicle for financial freedom" },
+    { title: "Think Entrepreneur", author: "Various", why: "Develop the entrepreneurial mindset" },
+    { title: "Succeed Yourself", author: "Various", why: "Take ownership of your entrepreneurial journey" },
+    { title: "The Goal Process", author: "Eliyahu M. Goldratt", why: "Identify and eliminate the constraints holding you back" },
+    { title: "Sprint", author: "Jake Knapp", why: "Solve big problems and test ideas in just five days" },
+    { title: "Rework", author: "Jason Fried & DHH", why: "Ignore the rules and build a business differently" },
+  ],
+  "Spirituality": [
+    { title: "The Purpose Driven Church", author: "Rick Warren", why: "Find your purpose and live it with conviction" },
+    { title: "The Alchemist", author: "Paulo Coelho", why: "Follow your Personal Legend wherever it leads" },
+    { title: "Too Busy to Pray", author: "Bill Hybels", why: "Why prayer is the most productive thing you can do" },
+    { title: "Maktub", author: "Paulo Coelho", why: "It is written — wisdom for the soul's journey" },
+    { title: "The War of Art", author: "Steven Pressfield", why: "Conquer the resistance that blocks your calling" },
+    { title: "Solomon's Secret", author: "Various", why: "Ancient wisdom from the world's wisest king" },
+    { title: "Awareness", author: "Anthony de Mello", why: "Wake up to the beauty and truth of life" },
+    { title: "What I Know For Sure", author: "Oprah Winfrey", why: "Deep reflections on gratitude and purpose" },
+    { title: "The Path", author: "Michael Puett & Christine Gross-Loh", why: "Chinese philosophy for a better life" },
+    { title: "Winning the War in Your Mind", author: "Craig Groeschel", why: "Break toxic thought patterns with faith" },
+  ],
+  "Health & Wellness": [
+    { title: "The New Optimum Nutrition Bible", author: "Patrick Holford", why: "The definitive guide to nourishing your body" },
+    { title: "Biology of Belief", author: "Bruce Lipton", why: "How your beliefs literally shape your cells" },
+    { title: "The Happiness Trap", author: "Russ Harris", why: "Stop struggling and start living with ACT" },
+    { title: "The Happiness Project", author: "Gretchen Rubin", why: "A year of experiments in living happily" },
+    { title: "The Courage to Be Disliked", author: "Ichiro Kishimi & Fumitake Koga", why: "Adlerian psychology for radical freedom" },
+    { title: "Feeling Good", author: "David D. Burns", why: "Clinically proven tools to overcome anxiety and low mood" },
+    { title: "Change Your Brain, Change Your Life", author: "Dr. Daniel Amen", why: "Brain science that transforms mental health" },
+    { title: "Why Has Nobody Told Me This Before?", author: "Dr. Julie Smith", why: "Mental health tools everyone deserves to know" },
+    { title: "The Art of Being Alone", author: "Renuka Singh", why: "Solitude as a strength, not a weakness" },
+    { title: "The Secret Lives of Introverts", author: "Jenn Granneman", why: "Embrace your introverted nature as a superpower" },
+  ],
+  "Productivity": [
+    { title: "Eat That Frog!", author: "Brian Tracy", why: "Tackle your biggest task first and win the day" },
+    { title: "The Obstacle Is the Way", author: "Ryan Holiday", why: "Turn every problem into fuel for progress" },
+    { title: "Deep Work", author: "Cal Newport", why: "Focused work is the superpower of our distracted era" },
+    { title: "Mind Management, Not Time Management", author: "David Kadavy", why: "Manage your mental energy, not just your clock" },
+    { title: "Effortless", author: "Greg McKeown", why: "Make the most important things the easiest things" },
+    { title: "The 5 AM Club", author: "Robin Sharma", why: "Own your morning and elevate your life" },
+    { title: "How to Stop Procrastinating", author: "Steve Scott", why: "Overcome delay and take consistent action" },
+    { title: "365 Days With Self-Discipline", author: "Martin Meadows", why: "A daily dose of self-discipline wisdom" },
+    { title: "Self-Discipline in 10 Days", author: "Theodore Bryant", why: "Practical steps to build ironclad discipline" },
+    { title: "The Science of Self-Discipline", author: "Peter Hollins", why: "Psychological research meets real-world application" },
+    { title: "Stolen Focus", author: "Johann Hari", why: "Why you can't pay attention — and how to think deeply again" },
+    { title: "So Good They Can't Ignore You", author: "Cal Newport", why: "Build rare skills that make you indispensable" },
+    { title: "Own Your Day, Own Your Life", author: "Aubrey Marcus", why: "Optimise every hour for peak performance" },
+    { title: "The Miracle of Self-Discipline", author: "Brian Tracy", why: "No excuses — discipline is a learnable skill" },
+    { title: "Mastery", author: "Robert Greene", why: "The path to becoming a true master of your craft" },
+    { title: "Limitless", author: "Jim Kwik", why: "Upgrade your brain, memory, and learning speed" },
+    { title: "Peak: How to Master Almost Anything", author: "Anders Ericsson", why: "Deliberate practice is the secret to expertise" },
+  ],
+};
+
+// State
+let userData = {};
+
+// ── ENFORCE 3-interest max ──
+document.querySelectorAll('#interests-grid input[type=checkbox]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const checked = document.querySelectorAll('#interests-grid input:checked');
+    if (checked.length > 3) { cb.checked = false; }
+  });
+});
+
+// ── FORM SUBMIT ──
+async function handleSubmit() {
+  const name = document.getElementById('f-name').value.trim();
+  const age = document.getElementById('f-age').value.trim();
+  const interests = Array.from(document.querySelectorAll('#interests-grid input:checked')).map(c => c.value);
+  const booksYear = document.getElementById('f-books-year').value;
+  const hoursDay = document.getElementById('f-hours-day').value;
+  const goals = document.getElementById('f-goals').value.trim();
+  const errBox = document.getElementById('form-error');
+
+  // Validate
+  errBox.classList.remove('show');
+  if (!name) { showErr('Please enter your name.'); return; }
+  if (!age || age < 10 || age > 110) { showErr('Please enter a valid age.'); return; }
+  if (interests.length === 0) { showErr('Please select at least one interest.'); return; }
+  if (!booksYear) { showErr('Please tell us how many books you read per year.'); return; }
+  if (!hoursDay) { showErr('Please select how many hours per day you can spend reading.'); return; }
+  if (!goals || goals.length < 15) { showErr('Please describe your goals in a bit more detail.'); return; }
+
+  userData = { name, age: parseInt(age), interests, booksYear, hoursDay, goals };
+
+  // Show loading
+  document.getElementById('form-page').style.display = 'none';
+  document.getElementById('loading-screen').classList.add('active');
+
+  try {
+    const result = await callClaude(userData);
+    renderResults(result);
+  } catch(e) {
+    document.getElementById('loading-screen').classList.remove('active');
+    document.getElementById('form-page').style.display = 'block';
+    showErr('Something went wrong generating your plan. Please try again.');
+  }
+}
+
+function showErr(msg) {
+  const b = document.getElementById('form-error');
+  b.textContent = msg;
+  b.classList.add('show');
+}
+
+// ── CALL CLAUDE API ──
+async function callClaude(data) {
+  // Build book context from our database for the selected interests
+  let bookContext = '';
+  data.interests.forEach(cat => {
+    const books = BOOKS[cat] || [];
+    bookContext += `\n\n## ${cat} Books Available:\n`;
+    books.forEach((b, i) => {
+      bookContext += `${i+1}. "${b.title}" by ${b.author} — ${b.why}\n`;
+    });
+  });
+
+  const prompt = `You are a wise reading coach and book curator. A person has filled in the following profile:
+
+Name: ${data.name}
+Age: ${data.age}
+Interests: ${data.interests.join(', ')}
+Books currently read per year: ${data.booksYear}
+Hours available for reading per day: ${data.hoursDay}
+Goals: ${data.goals}
+
+Available books to recommend from (ONLY recommend books from this list):
+${bookContext}
+
+Your task: Return a JSON object (no markdown, no code fences, pure JSON) with this exact structure:
+{
+  "motivationalNote": "A warm, personal 60-70 word motivational note addressed to ${data.name} by first name. Reference their specific goals. Make it genuine, uplifting and African-context aware. Do not be generic.",
+  "stats": {
+    "totalBooks": <number of books recommended>,
+    "estimatedMonths": <realistic months to complete them at their reading pace>,
+    "hoursPerDay": "${data.hoursDay}"
+  },
+  "categories": [
+    {
+      "name": "<category name>",
+      "books": [
+        {
+          "title": "<exact title from the list>",
+          "author": "<exact author from the list>",
+          "why": "<one short sentence why this book matches their specific goals>",
+          "timing": "<e.g. Month 1–2>"
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+- Only recommend 2-4 books per category, chosen specifically for their goals
+- Total books should be achievable in 12 months based on their reading pace (${data.booksYear} books/year currently, ${data.hoursDay} hrs/day)
+- Timing should be a realistic reading schedule across 12 months
+- Only use books that appear in the Available books list above
+- Make the motivational note sound like a wise mentor who truly knows them`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const apiData = await response.json();
+  const text = apiData.content.map(b => b.text || '').join('');
+  const clean = text.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ── RENDER RESULTS ──
+function renderResults(result) {
+  document.getElementById('loading-screen').classList.remove('active');
+
+  // Headline
+  document.getElementById('results-headline').textContent = `${userData.name}'s 12-Month Reading Map`;
+  document.getElementById('results-sub').textContent = `${result.stats.totalBooks} books. ${result.stats.estimatedMonths} months. One transformed life.`;
+
+  // Build card
+  const card = document.getElementById('timetable-card');
+
+  let categoriesHTML = '';
+  result.categories.forEach(cat => {
+    let booksHTML = '';
+    cat.books.forEach((book, idx) => {
+      booksHTML += `
+        <div class="book-item">
+          <span class="book-num">${String(idx + 1).padStart(2,'0')}</span>
+          <div class="book-info">
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">${book.author}</div>
+            <div class="book-why">${book.why}</div>
+          </div>
+          <span class="book-timing">${book.timing}</span>
+        </div>`;
+    });
+    categoriesHTML += `
+      <div class="category-block">
+        <div class="category-title"><span class="cat-dot"></span>${cat.name}</div>
+        <div class="book-list">${booksHTML}</div>
+      </div>`;
+  });
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-header-name">${userData.name}, ${userData.age}</div>
+        <div class="card-header-meta">Focus: ${userData.interests.join(' · ')} &nbsp;|&nbsp; ${userData.hoursDay} hrs/day</div>
+      </div>
+      <div class="card-header-right">
+        <div class="readmap-badge">ReadMap</div>
+        <div style="font-size:0.72rem;color:var(--ink-soft);margin-top:4px;">12-Month Plan</div>
+      </div>
+    </div>
+
+    <div class="motivational-note">"${result.motivationalNote}"</div>
+
+    ${categoriesHTML}
+
+    <div class="schedule-summary">
+      <div class="stat-cell">
+        <div class="stat-num">${result.stats.totalBooks}</div>
+        <div class="stat-label">Books selected</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">${result.stats.estimatedMonths}</div>
+        <div class="stat-label">Months planned</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">${userData.hoursDay}</div>
+        <div class="stat-label">Hours/day reading</div>
+      </div>
+    </div>
+
+    <div class="card-footer">readmap · your personal book journey · 2025</div>
+  `;
+
+  document.getElementById('results-page').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── DOWNLOAD AS IMAGE ──
+async function downloadImage() {
+  const card = document.getElementById('timetable-card');
+  const btn = document.querySelector('.btn-download');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const canvas = await html2canvas(card, {
+      scale: 2,
+      backgroundColor: '#FDFBF8',
+      useCORS: true,
+      logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = `ReadMap-${userData.name.replace(/\s+/g,'-')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Could not save image. Try a screenshot instead.');
+  }
+
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Save as Image`;
+  btn.disabled = false;
+}
+
+// ── RESTART ──
+function restart() {
+  document.getElementById('results-page').classList.remove('active');
+  document.getElementById('form-page').style.display = 'block';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-age').value = '';
+  document.getElementById('f-books-year').value = '';
+  document.getElementById('f-hours-day').value = '';
+  document.getElementById('f-goals').value = '';
+  document.querySelectorAll('#interests-grid input').forEach(c => c.checked = false);
+  document.getElementById('form-error').classList.remove('show');
+  window.scrollTo({ top: 0 });
+}
+</script>
+</body>
+</html>
